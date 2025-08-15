@@ -1,5 +1,5 @@
 import streamlit as st
-from services.notion import DB, create_page, list_pages, _title, _select
+from app.services.notion_service import DB, create_page, list_pages, _title, _select
 
 st.title('Stores')
 with st.form('new_store'):

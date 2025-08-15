@@ -1,6 +1,6 @@
 import streamlit as st
 from datetime import datetime
-from services.notion import DB, list_pages, create_page, _date_iso, _relation, _number, _select, _rich
+from app.services.notion_service import DB, list_pages, create_page, _date_iso, _relation, _number, _select, _rich
 
 st.title('Costs')
 products = list_pages(DB['products']) if DB['products'] else []

@@ -1,5 +1,5 @@
 import streamlit as st
-from services.notion import DB, create_page, list_pages, _title
+from app.services.notion_service import DB, create_page, list_pages, _title
 
 st.title('Customers')
 with st.form('new_cust'):

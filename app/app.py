@@ -1,9 +1,9 @@
 import streamlit as st
-from services.notion import DB, list_pages
+from app.services.notion_service import DB, list_pages
 
-st.set_page_config(page_title='Notion Print Flow — Streamlit', page_icon='🧱', layout='wide')
+st.set_page_config(page_title='JMAKE', page_icon='🖨️', layout='wide')
 
-st.title('Notion Print Flow — Dashboard')
+st.title('JMAKE — Dashboard')
 col1, col2, col3, col4 = st.columns(4)
 
 orders = list_pages(DB['orders']) if DB['orders'] else []

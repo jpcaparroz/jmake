@@ -240,7 +240,7 @@ def create_order(order_title: str, iso_date: str, store_id: str, customer_id: st
 # app.py
 # =============================
 import streamlit as st
-from services.notion import DB, list_pages
+from app.services.notion_service import DB, list_pages
 
 st.set_page_config(page_title='Notion Print Flow — Streamlit', page_icon='🧱', layout='wide')
 
@@ -275,7 +275,7 @@ st.page_link('pages/7_Settings.py', label='Settings')
 # =============================
 import streamlit as st
 from datetime import datetime
-from services.notion import DB, list_pages, ensure_customer, ensure_store, create_order
+from app.services.notion_service import DB, list_pages, ensure_customer, ensure_store, create_order
 
 st.title('Orders')
 
@@ -357,7 +357,7 @@ for o in orders:
 # pages/2_Products.py
 # =============================
 import streamlit as st
-from services.notion import DB, create_page, list_pages, _title, _select, _number, adjust_stock
+from app.services.notion_service import DB, create_page, list_pages, _title, _select, _number, adjust_stock
 from datetime import datetime
 
 st.title('Products')
@@ -403,7 +403,7 @@ for p in products:
 # pages/3_Customers.py
 # =============================
 import streamlit as st
-from services.notion import DB, create_page, list_pages, _title
+from app.services.notion_service import DB, create_page, list_pages, _title
 
 st.title('Customers')
 with st.form('new_cust'):
@@ -432,7 +432,7 @@ for c in list_pages(DB['customers']):
 # pages/4_Stores.py
 # =============================
 import streamlit as st
-from services.notion import DB, create_page, list_pages, _title, _select
+from app.services.notion_service import DB, create_page, list_pages, _title, _select
 
 st.title('Stores')
 with st.form('new_store'):
@@ -460,7 +460,7 @@ for s in list_pages(DB['stores']):
 # =============================
 import streamlit as st
 from datetime import datetime
-from services.notion import DB, list_pages, create_page, _date_iso, _relation, _number, _select, _rich
+from app.services.notion_service import DB, list_pages, create_page, _date_iso, _relation, _number, _select, _rich
 
 st.title('Costs')
 products = list_pages(DB['products']) if DB['products'] else []
@@ -496,7 +496,7 @@ for c in list_pages(DB['costs']):
 # pages/6_Stock.py
 # =============================
 import streamlit as st
-from services.notion import DB, list_pages, adjust_stock
+from app.services.notion_service import DB, list_pages, adjust_stock
 from datetime import datetime
 
 st.title('Stock')
@@ -529,7 +529,7 @@ with st.form('manual_move'):
 # pages/7_Settings.py
 # =============================
 import streamlit as st
-from services.notion import DB, client
+from app.services.notion_service import DB, client
 
 st.title('Settings')
 

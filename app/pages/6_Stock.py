@@ -1,5 +1,5 @@
 import streamlit as st
-from services.notion import DB, list_pages, adjust_stock
+from app.services.notion_service import DB, list_pages, adjust_stock
 from datetime import datetime
 
 st.title('Stock')

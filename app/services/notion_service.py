@@ -26,6 +26,12 @@ def list_pages(db_id: str, page_size: int = 50) -> List[dict]:
     return res.get('results', [])
 
 
+def get_database_count(db_name: str) -> int:
+    db = DB.get(db_name)
+    if not db:
+        raise ValueError(f"Database '{db_name}' not found in DB config.")
+    return len(list_pages(db))
+
 # ---- Domain helpers (align with your TSX flows) ----
 def ensure_customer(name: str, phone: str = '', email: str = '', address: str = '') -> str:
     db = DB['customer']

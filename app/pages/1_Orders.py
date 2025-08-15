@@ -1,6 +1,6 @@
 import streamlit as st
 from datetime import datetime
-from services.notion import DB, list_pages, ensure_customer, ensure_store, create_order
+from app.services.notion_service import DB, list_pages, ensure_customer, ensure_store, create_order
 
 st.title('Orders')
 
@@ -82,7 +82,7 @@ for o in orders:
 # pages/2_Products.py
 # =============================
 import streamlit as st
-from services.notion import DB, create_page, list_pages, _title, _select, _number, adjust_stock
+from app.services.notion_service import DB, create_page, list_pages, _title, _select, _number, adjust_stock
 from datetime import datetime
 
 st.title('Products')

@@ -1,5 +1,5 @@
 import streamlit as st
-from services.notion import DB, client
+from app.services.notion_service import DB, client
 
 st.title('Settings')
 
