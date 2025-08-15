@@ -13,44 +13,66 @@ def get_database_data(notion: Client, database_id: str):
     return results
 
 def extract_properties_to_easy_dict(page: dict) -> dict:
-    """Extract properties from a Notion page object to a easy dict."""
+    """Extract properties from a Notion page object to an easy dict."""
     props = {}
-    for key, val in page["properties"].items():
-        if val["type"] == "unique_id":
-            props[key] = f"{val['unique_id']['prefix']}-{str(val['unique_id']['number'])}" if val["unique_id"] else None
-        elif val["type"] == "title":
-            props[key] = val["title"][0]["plain_text"] if val["title"] else ""
-        elif val["type"] == "rich_text":
-            props[key] = val["rich_text"][0]["plain_text"] if val["rich_text"] else ""
-        elif val["type"] == "number":
-            props[key] = val["number"]
-        elif val["type"] == "date":
-            props[key] = val["date"]["start"] if val["date"] else None
-        elif val["type"] == "select":
-            props[key] = val["select"]["name"] if val["select"] else None
-        elif val["type"] == "phone_number":
-            props[key] = val["phone_number"] if val["phone_number"] else None
-        elif val["type"] == "url":
-            props[key] = val["url"] if val["url"] else None
-        elif val["type"] == "email":
-            props[key] = val["email"] if val["email"] else None
-        elif val["type"] == "relation":
-            props[key] = [r["id"] for r in val["relation"]]
-        elif val["type"] == "rollup":
-            props[key] = val["rollup"]["array"][0]['formula']['number'] if val["rollup"] else None
-        elif val["type"] == "created_by":
-            props[key] = val["created_by"] if val["created_by"] else None
-        elif val["type"] == "last_edited_time":
-            props[key] = convert_time_zone(datetime.fromisoformat(val["last_edited_time"])).strftime(DEFAULT_DATE_FORMAT) if val["last_edited_time"] else None
-        elif val["type"] == "created_time":
-            props[key] = convert_time_zone(datetime.fromisoformat(val["created_time"])).strftime(DEFAULT_DATE_FORMAT) if val["created_time"] else None
+    properties = page.get("properties", {})
+
+    for key, val in properties.items():
+        val_type = val.get("type")
+
+        handlers = {
+            "unique_id": lambda v: f"{v['unique_id']['prefix']}-{v['unique_id']['number']}" if v.get("unique_id") else None,
+            "title": lambda v: v["title"][0]["plain_text"] if v.get("title") else "",
+            "rich_text": lambda v: v["rich_text"][0]["plain_text"] if v.get("rich_text") else "",
+            "number": lambda v: v.get("number"),
+            "date": lambda v: v["date"]["start"] if v.get("date") else None,
+            "select": lambda v: v["select"]["name"] if v.get("select") else None,
+            "phone_number": lambda v: v.get("phone_number"),
+            "url": lambda v: v.get("url"),
+            "email": lambda v: v.get("email"),
+            "formula": lambda v: v["formula"]["number"] if v.get("formula") else 0,
+            "relation": lambda v: [r["id"] for r in v.get("relation", [])],
+            "created_by": lambda v: v.get("created_by"),
+            "last_edited_time": lambda v: format_datetime(v.get("last_edited_time")),
+            "created_time": lambda v: format_datetime(v.get("created_time")),
+        }
+
+        if val_type == "rollup":
+            props[key] = handle_rollup(val)
+        elif val_type in handlers:
+            props[key] = handlers[val_type](val)
         else:
             props[key] = None
 
     return props
+
+def handle_rollup(val: dict):
+    """Handle Notion rollup fields."""
+    rollup_type = val.get("rollup", {}).get("type")
+    rollup_data = val.get("rollup", {})
+
+    if rollup_type == "array":
+        array_data = rollup_data.get("array", [])
+        if not array_data:
+            return 0
+        first = array_data[0]
+        if first.get("type") == "formula":
+            return first["formula"].get("number", 0)
+        elif first.get("type") == "number":
+            return first.get("number", 0)
+    elif rollup_type == "number":
+        return rollup_data.get("number", 0)
+
+    return 0
 
 def convert_time_zone(date: datetime) -> datetime:
     """Convert a datetime object to a different timezone."""
     if not date:
         return None
     return date.astimezone(pytz.timezone(DEFAULT_TIMEZONE))
+
+def format_datetime(iso_str):
+    """Convert ISO datetime string to formatted string."""
+    if not iso_str:
+        return None
+    return convert_time_zone(datetime.fromisoformat(iso_str)).strftime(DEFAULT_DATE_FORMAT)
