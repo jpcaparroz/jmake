@@ -1,63 +1,19 @@
-from notion_client import Client
-from dotenv import load_dotenv
-import os
 from typing import Dict, Any, List, Optional
 
-load_dotenv()
-
-NOTION_API_KEY = os.getenv('NOTION_API_KEY')
-if not NOTION_API_KEY:
-    raise RuntimeError('NOTION_API_KEY missing in environment')
-
-client = Client(auth=NOTION_API_KEY)
-
-DB = {
-    'products': os.getenv('DB_PRODUCTS_ID'),
-    'customers': os.getenv('DB_CUSTOMERS_ID'),
-    'stores': os.getenv('DB_STORES_ID'),
-    'orders': os.getenv('DB_ORDERS_ID'),
-    'order_items': os.getenv('DB_ORDER_ITEMS_ID'),
-    'costs': os.getenv('DB_COSTS_ID'),
-    'stock': os.getenv('DB_STOCK_ID'),
-    'stock_movements': os.getenv('DB_STOCK_MOVEMENTS_ID'),
-}
+from app.models import Category, Product, Customer, Supplier, Store, Order, OrderItem, Stock, StockMovement
+from app.core.config import notion_client, DB
 
 # ---- Low-level helpers ----
-
-def _title(text: str):
-    return {"title": [{"text": {"content": text}}]}
-
-
-def _rich(text: str):
-    return {"rich_text": [{"text": {"content": text}}]}
-
-
-def _number(n: float):
-    return {"number": float(n)}
-
-
-def _select(name: str | None):
-    return {"select": {"name": name}} if name else {"select": None}
-
-
-def _date_iso(iso: str):
-    return {"date": {"start": iso}}
-
-
-def _relation(page_id: str):
-    return {"relation": [{"id": page_id}]} if page_id else {"relation": []}
-
-
 def create_page(db_id: str, properties: Dict[str, Any]) -> dict:
-    return client.pages.create(parent={"database_id": db_id}, properties=properties)
+    return notion_client.pages.create(parent={"database_id": db_id}, properties=properties)
 
 
 def update_page(page_id: str, properties: Dict[str, Any]) -> dict:
-    return client.pages.update(page_id=page_id, properties=properties)
+    return notion_client.pages.update(page_id=page_id, properties=properties)
 
 
 def find_by_title(db_id: str, title_prop: str, title: str) -> Optional[dict]:
-    res = client.databases.query(database_id=db_id, filter={
+    res = notion_client.databases.query(database_id=db_id, filter={
         "property": title_prop,
         "title": {"equals": title}
     })
@@ -66,13 +22,13 @@ def find_by_title(db_id: str, title_prop: str, title: str) -> Optional[dict]:
 
 
 def list_pages(db_id: str, page_size: int = 50) -> List[dict]:
-    res = client.databases.query(database_id=db_id, page_size=page_size)
+    res = notion_client.databases.query(database_id=db_id, page_size=page_size)
     return res.get('results', [])
 
-# ---- Domain helpers (align with your TSX flows) ----
 
+# ---- Domain helpers (align with your TSX flows) ----
 def ensure_customer(name: str, phone: str = '', email: str = '', address: str = '') -> str:
-    db = DB['customers']
+    db = DB['customer']
     page = find_by_title(db, 'Customer', name)
     if page:
         return page['id']
@@ -99,7 +55,7 @@ def ensure_store(name: str, type_: str = 'Marketplace', website: str = '') -> st
 
 
 def create_stock_if_missing(product_id: str) -> str:
-    res = client.databases.query(database_id=DB['stock'], filter={
+    res = notion_client.databases.query(database_id=DB['stock'], filter={
         "property": "Product",
         "relation": {"contains": product_id},
     })
@@ -128,7 +84,7 @@ def adjust_stock(product_id: str, qty_delta: float, iso_date: str, movement_type
 
     # Balance
     stock_id = create_stock_if_missing(product_id)
-    stock_page = client.pages.retrieve(stock_id)
+    stock_page = notion_client.pages.retrieve(stock_id)
     current = stock_page['properties']['Current Qty'].get('number') or 0
     new_value = current + qty_delta
     update_page(stock_id, {
