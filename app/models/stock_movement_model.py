@@ -2,8 +2,11 @@ import json
 from datetime import datetime
 from typing import Optional, Dict, List
 
-from app.utils.notion_utils import extract_properties_to_easy_dict
-from app.core.config import DB
+from utils.notion_utils import extract_properties_to_easy_dict
+from core.config import get_settings
+
+
+settings = get_settings()
 
 
 class StockMovement:
@@ -20,7 +23,7 @@ class StockMovement:
                  last_edited_time: datetime,
                  notion_id: Optional[str] = None) -> None:
 
-        self.database_id = DB['stock_movement']
+        self.database_id = settings.DB_STOCK_MOVEMENT_ID
         self.stock_movement_id = stock_movement_id
         self.name = name
         self.product = product

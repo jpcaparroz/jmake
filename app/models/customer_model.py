@@ -2,8 +2,11 @@ import json
 from datetime import datetime
 from typing import Optional, Dict, List
 
-from app.utils.notion_utils import extract_properties_to_easy_dict
-from app.core.config import DB
+from utils.notion_utils import extract_properties_to_easy_dict
+from core.config import get_settings
+
+
+settings = get_settings()
 
 
 class Customer:
@@ -23,7 +26,7 @@ class Customer:
                  last_edited_time: datetime,
                  notion_id: Optional[str] = None) -> None:
 
-        self.database_id = DB['customer']
+        self.database_id = settings.DB_CUSTOMER_ID
         self.customer_id = customer_id
         self.name = name
         self.order = order
