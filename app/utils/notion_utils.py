@@ -3,7 +3,10 @@ from datetime import datetime
 
 from notion_client import Client
 
-from app.core.config import DEFAULT_DATE_FORMAT, DEFAULT_TIMEZONE
+from core.config import get_settings
+
+
+settings = get_settings()
 
 
 def get_database_data(notion: Client, database_id: str):
@@ -69,10 +72,10 @@ def convert_time_zone(date: datetime) -> datetime:
     """Convert a datetime object to a different timezone."""
     if not date:
         return None
-    return date.astimezone(pytz.timezone(DEFAULT_TIMEZONE))
+    return date.astimezone(pytz.timezone(settings.DEFAULT_TIMEZONE))
 
 def format_datetime(iso_str):
     """Convert ISO datetime string to formatted string."""
     if not iso_str:
         return None
-    return convert_time_zone(datetime.fromisoformat(iso_str)).strftime(DEFAULT_DATE_FORMAT)
+    return convert_time_zone(datetime.fromisoformat(iso_str)).strftime(settings.DEFAULT_DATE_FORMAT)

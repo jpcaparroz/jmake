@@ -1,6 +1,6 @@
 import streamlit as st
 from datetime import datetime
-from app.services.notion_service import DB, list_pages, ensure_customer, ensure_store, create_order
+from services.notion_service import DB, slist_pages, ensure_customer, ensure_store, create_order
 
 st.title('Orders')
 

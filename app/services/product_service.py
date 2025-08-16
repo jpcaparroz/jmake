@@ -1,7 +1,7 @@
 from typing import Dict, Any, List, Optional
 
 from app.models import Product
-from app.core.config import notion_client, DB
+from core.config import notion_client, DB
 
 
 def get_product_count() -> int:
