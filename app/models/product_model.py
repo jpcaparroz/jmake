@@ -2,6 +2,8 @@ import json
 from datetime import datetime
 from typing import Optional, Dict, List
 
+import pandas as pd
+
 from utils.notion_utils import extract_properties_to_easy_dict
 from core.config import get_settings
 
@@ -109,3 +111,6 @@ class Product:
                 "number": self.print_time if self.print_time is not None else 0.0
             }
         }
+
+    def to_dataframe(self) -> pd.DataFrame:
+        return pd.DataFrame([self.to_dict()])
