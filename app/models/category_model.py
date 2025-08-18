@@ -11,10 +11,10 @@ class Category:
     """Category class representation"""
 
     def __init__(self,
-                 category_id: str,
                  name: str,
-                 created_time: datetime,
-                 last_edited_time: datetime,
+                 category_id: Optional[str] = None,
+                 created_time: Optional[datetime] = None,
+                 last_edited_time: Optional[datetime] = None,
                  notion_id: Optional[str] = None) -> None:
 
         self.database_id = settings.DB_CATEGORY_ID
@@ -51,13 +51,13 @@ class Category:
             last_edited_time=props.get('Last edited time')
         )
 
-    async def get_parent(self) -> dict:
+    def get_parent(self) -> dict:
         return {
             "type": "database_id",
             "database_id": self.database_id
         }
 
-    async def get_icon(self) -> dict:
+    def get_icon(self) -> dict:
         return {
             "type": "external",
             "external": {
@@ -65,7 +65,7 @@ class Category:
             }
         }
 
-    async def get_notion_json(self) -> dict:
+    def get_notion_json(self) -> dict:
         return {
             "Name": {
                 "type": "title",

@@ -13,15 +13,15 @@ class Product:
     """Product class representation"""
 
     def __init__(self,
-                 product_id: str,
                  name: str,
-                 price: float,
-                 stock: List[str],
-                 category: List[str],
-                 stock_qty: Optional[int],
-                 print_time: Optional[float],
-                 created_time: datetime,
-                 last_edited_time: datetime,
+                 product_id: Optional[str] = None,
+                 price: Optional[float] = 0.0,
+                 stock: Optional[List[str]]  = None,
+                 category: Optional[List[str]] = None,
+                 stock_qty: Optional[int] = None,
+                 print_time: Optional[float] = 0.0,
+                 created_time: Optional[datetime] = None,
+                 last_edited_time: Optional[datetime] = None,
                  notion_id: Optional[str] = None) -> None:
 
         self.database_id = settings.DB_PRODUCT_ID
@@ -73,13 +73,13 @@ class Product:
             last_edited_time=props.get('Last edited time')
         )
 
-    async def get_parent(self) -> dict:
+    def get_parent(self) -> dict:
         return {
             "type": "database_id",
             "database_id": self.database_id
         }
 
-    async def get_icon(self) -> dict:
+    def get_icon(self) -> dict:
         return {
             "type": "external",
             "external": {
@@ -87,7 +87,7 @@ class Product:
             }
         }
 
-    async def get_notion_json(self) -> dict:
+    def get_notion_json(self) -> dict:
         return {
             "Name": {
                 "type": "title",
@@ -98,11 +98,7 @@ class Product:
             },
             "Price": {
                 "type": "number",
-                "number": self.price
-            },
-            "Stock": {
-                "type": "relation",
-                "relation": [{"id": s} for s in self.stock]
+                "number": self.price if self.price is not None else 0.0
             },
             "Category": {
                 "type": "relation",
@@ -110,6 +106,6 @@ class Product:
             },
             "Print Time": {
                 "type": "number",
-                "number": self.print_time
+                "number": self.print_time if self.print_time is not None else 0.0
             }
         }
