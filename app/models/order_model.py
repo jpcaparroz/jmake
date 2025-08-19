@@ -13,16 +13,16 @@ class Order:
     """Order class representation"""
 
     def __init__(self,
-                 order_id: str,
                  name: str,
-                 order_date: date,
-                 store_ids: List[str],
-                 customer_ids: List[str],
-                 sale_item_ids: List[str],
-                 total_value: Optional[float],
-                 description: Optional[str],
-                 created_time: datetime,
-                 last_edited_time: datetime,
+                 order_id: Optional[str] = None,
+                 order_date: Optional[date] = None,
+                 store_ids: Optional[List[str]] = None,
+                 customer_ids: Optional[List[str]] = None,
+                 sale_item_ids: Optional[List[str]] = None,
+                 total_value: Optional[float] = 0.0,
+                 description: Optional[str] = None,
+                 created_time: Optional[datetime] = None,
+                 last_edited_time: Optional[datetime] = None,
                  notion_id: Optional[str] = None) -> None:
 
         self.database_id = settings.DB_ORDER_ID
