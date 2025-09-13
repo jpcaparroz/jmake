@@ -3,7 +3,6 @@ from models.customer_model import Customer
 from models.order_item_model import OrderItem
 from models.order_model import Order
 from models.product_model import Product
-from models.stock_model import Stock
 from models.stock_movement_model import StockMovement
 from models.store_model import Store
 from models.supplier_model import Supplier

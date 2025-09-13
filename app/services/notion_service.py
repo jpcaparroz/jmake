@@ -42,7 +42,7 @@ def get_page_name_by_id(page_id: str) -> str | None:
     try:
         page = notion.pages.retrieve(page_id=page_id)
         props = extract_properties_to_easy_dict(page)
-        return props.get("title")
+        return props.get("Name")
     except Exception as e:
         print(f"Error fetching page {page_id}:{e}")
         return None
