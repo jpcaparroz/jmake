@@ -8,7 +8,6 @@ from core.config import get_settings
 
 settings = get_settings()
 
-
 def get_database_data(notion: Client, database_id: str):
     results = []
     query = notion.databases.query(database_id=database_id)

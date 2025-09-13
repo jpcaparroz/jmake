@@ -21,6 +21,13 @@ class Settings(BaseSettings):
     DEFAULT_TIMEZONE: str = "America/Sao_Paulo"
     DEFAULT_DATE_FORMAT: str = "%d/%m/%Y %H:%M:%S"
 
+    ST_DATE_FORMAT: str = "DD/MM/YYYY"
+    ST_ORDER_NUMBER_FORMAT: str = "R$ %.2f"
+
+    ST_PRODUCT_PRICE_NUMBER_FORMAT: str = "R$ %.2f"
+    ST_PRODUCT_CREATED_TIME_FORMAT: str = "dddd, MMMM Do YYYY, kk:mm:ss"
+    ST_PRODUCT_LAST_EDITED_TIME_FORMAT: str = "dddd, MMMM Do YYYY, kk:mm:ss"
+
     class Config:
         env_file = ".env"
         case_sensitive = True

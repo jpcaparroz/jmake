@@ -1,8 +1,9 @@
 import streamlit as st
 import pandas as pd
 
-from services.notion_service import get_database_count, list_pages
 from components.product_components import create_product_dialog, open_product_dialog
+from services.notion_service import list_pages, get_page_name_by_id
+from core.config import get_settings
 from models import Product
 
 # Main page configs
@@ -25,24 +26,29 @@ if st.session_state.get("product_dialog_open", False):
 
 
 # Metrics Cached Data
+@st.cache_data
 def load_data() -> dict:
-    response = {"product_count": get_database_count("product")}
+    products = pd.concat(
+        [Product.from_dict(p).to_dataframe() for p in list_pages("product")],
+        ignore_index=True,
+    )
 
-    return response
+    # Swap Category IDs for Names
+    products["Category"] = products["Category"].apply(lambda c: get_page_name_by_id(c))
 
+    return products
 
 data = load_data()
 
 # Products Count Metric
-col2.metric("Products", data["product_count"], border=True)
+col2.metric(
+    label="Products", 
+    value=len(data), 
+    border=True)
 
 # Dataframe as Table
-products = pd.concat(
-    [Product.from_dict(p).to_dataframe() for p in list_pages("product")],
-    ignore_index=True,
-)
 st.dataframe(
-    products[
+    data[
         [
             "ID",
             "Name",
@@ -57,11 +63,11 @@ st.dataframe(
     column_config={
         "ID": st.column_config.TextColumn(),
         "Name": st.column_config.TextColumn(),
-        "Price": st.column_config.NumberColumn(),
+        "Price": st.column_config.NumberColumn(format=get_settings().ST_PRODUCT_PRICE_NUMBER_FORMAT),
         "Category": st.column_config.ListColumn(),
         "Stock Qty": st.column_config.NumberColumn(),
         "Print Time": st.column_config.NumberColumn(),
-        "Created Time": st.column_config.DateColumn(),
-        "Last Edited Time": st.column_config.DateColumn(),
+        "Created Time": st.column_config.DateColumn(format=get_settings().ST_PRODUCT_CREATED_TIME_FORMAT),
+        "Last Edited Time": st.column_config.DateColumn(format=get_settings().ST_PRODUCT_LAST_EDITED_TIME_FORMAT),
     },
 )

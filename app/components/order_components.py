@@ -1,12 +1,8 @@
-import time
-from datetime import datetime
-
 import streamlit as st
 import pandas as pd
 
 from core.config import get_settings
 from services.notion_service import list_pages
-from services.order_service import create_order_on_notion
 from models import Order, Product, Customer, Store
 
 
@@ -22,15 +18,17 @@ def open_order_dialog():
 def create_order_dialog() -> None:
     """New order dialog"""
 
+    # --- Fetch products ---
     try:
         products = [Product.from_dict(p) for p in list_pages("product", page_size=100)]
         product_options = [p.name for p in products]
-        product_map = {p.name: p for p in products}  # 🔑 mapa nome -> Product
+        product_map = {p.name: p for p in products}  # 🔑 nome -> Product
     except Exception as e:
         st.error(f"Error fetching products: {e}")
         product_options = []
         product_map = {}
 
+    # --- Fetch customers ---
     try:
         customers = [Customer.from_dict(c) for c in list_pages("customer", page_size=100)]
         customer_options = [c.name for c in customers]
@@ -38,6 +36,7 @@ def create_order_dialog() -> None:
         st.error(f"Error fetching customers: {e}")
         customer_options = []
 
+    # --- Fetch stores ---
     try:
         stores = [Store.from_dict(c) for c in list_pages("store", page_size=100)]
         store_options = [c.name for c in stores]
@@ -45,66 +44,93 @@ def create_order_dialog() -> None:
         st.error(f"Error fetching stores: {e}")
         store_options = []
 
-    # --- Campos principais ---
+    # --- Required Inputs ---
     st.subheader("Required Inputs")
-    date = st.date_input("Order Date", value="today")
-    order_customer = st.selectbox("Customer", options=customer_options)
-    order_store = st.selectbox("Store", options=store_options)
+    date = st.date_input(
+        label="Order Date",
+        value="today",
+        format=get_settings().ST_DATE_FORMAT,
+    )
+    order_customer = st.selectbox(
+        label="Customer",
+        index=None,
+        options=customer_options,
+        placeholder='Select a custommer',
+        accept_new_options=False
+    )
+    order_store = st.selectbox(
+        label="Store",
+        index=None,
+        options=store_options,
+        placeholder='Select a store',
+        accept_new_options=False
+    )
 
-    # --- Editor de produtos ---
-    product_init_df = pd.DataFrame([
-        {"Product": None, "Quantity": 1, "Suggested Price": 0.0, "Total": 0.0}
-    ])
+    # --- Editor de produtos (apenas colunas editáveis) ---
+    if "order_df" not in st.session_state:
+        st.session_state["order_df"] = pd.DataFrame([{
+            "Product": None,
+            "Quantity": 1,
+            "Suggested Price": 0.0,
+            "Price": 0.0,
+            "Total": 0.0
+        }])
 
     edited = st.data_editor(
-        product_init_df,
+        data=st.session_state["order_df"],
         num_rows="dynamic",
         column_config={
-            "Product": st.column_config.SelectboxColumn("Product", options=product_options, required=True),
-            "Quantity": st.column_config.NumberColumn("Quantity", min_value=1, step=1),
-            "Suggested Price": st.column_config.NumberColumn("Suggested Price", disabled=True),
-            "Total": st.column_config.NumberColumn("Total", disabled=True)
+            "Product": st.column_config.SelectboxColumn(
+                "Product", options=product_options, required=True
+            ),
+            "Quantity": st.column_config.NumberColumn(
+                "Quantity", min_value=1, step=1, default=1
+            ),
+            "Suggested Price": st.column_config.NumberColumn(
+                "Suggested Price", disabled=True, default=0.0, format=get_settings().ST_ORDER_NUMBER_FORMAT
+            ),
+            "Price": st.column_config.NumberColumn(
+                "Price", default=0.0, required=True, format=get_settings().ST_ORDER_NUMBER_FORMAT
+            ),
+            "Total": st.column_config.NumberColumn(
+                "Total", disabled=True, default=0.0, format=get_settings().ST_ORDER_NUMBER_FORMAT
+            )
         },
         key="order_editor"
     )
 
-    # --- Recalcular preços e totais ---
-    for i, row in edited.iterrows():
-        product_name = row["Product"]
-        if product_name in product_map:  # agora compara com o dict
-            product_price = product_map[product_name].price or 0.0
-            edited.at[i, "Suggested Price"] = product_price
-            edited.at[i, "Total"] = product_price * row["Quantity"]
+    if not edited.empty:
+        edited["Suggested Price"] = edited["Product"].map(
+            lambda name: product_map[name].price if name in product_map else 0.0
+        )
+        edited["Total"] = edited["Quantity"] * edited["Price"]
 
-    # --- Mostrar resultado atualizado ---
-    st.write("📦 Order Items")
-    st.dataframe(edited)
+    # --- salva de volta ---
+    st.session_state["order_df"] = edited
 
-    st.metric("Total Order", edited["Total"].sum())
+    st.metric(
+        label="Total Order",
+        value=f"R$ {edited['Total'].sum():.2f}",
+    )
 
-
-
+    # --- Campos opcionais ---
     st.subheader("Optional Inputs")
     description = st.text_area("Description", height=100)
 
+    # --- Botão criar pedido ---
     # if st.button("Create Order", type="primary", use_container_width=True):
-    #     # Create category if not exists
-    #     # if category not in category_options:
-    #     #     category_id = create_category_on_notion(Category(name=category)).get("id")
-    #     # else:
-    #     #     category_id = next(c.notion_id for c in categories if c.name == category)
-
     #     new_order = Order(
     #         name=f"Order {datetime.now().strftime(get_settings().DEFAULT_DATE_FORMAT)}",
     #         order_date=date,
     #         store_id=order_store,
     #         customer_id=order_customer,
-    #         total_value=0.0
+    #         total_value=edited["Total"].sum(),
     #     )
-
+    #
     #     with st.spinner("Creating order..."):
     #         create_order_on_notion(new_order)
     #         time.sleep(1)
-    
+    #
     #     st.session_state["order_dialog_open"] = False
-        # st.rerun()
+    #     st.rerun()
+
