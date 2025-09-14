@@ -1,7 +1,9 @@
 import streamlit as st
 import pandas as pd
 
-from components.product_components import create_product_dialog, create_product_dialog_state, edit_product_dialog, edit_product_dialog_state
+from components.product_components import (create_product_dialog, create_product_dialog_state,
+                                           edit_product_dialog, edit_product_dialog_state,
+                                           delete_product_dialog, delete_product_dialog_state)
 from services.notion_service import list_pages, get_page_name_by_id
 from core.config import get_settings
 from models import Product
@@ -18,7 +20,7 @@ col1.subheader("Quick Actions")
 
 with col1:
     with st.container(border=False):
-        btn_col1, btn_col2 = st.columns([1, 1])
+        btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 1])
 
         with btn_col1:
             # Button to open create product dialog
@@ -30,13 +32,18 @@ with col1:
             if st.button(label="Edit Product", help="Edit an existing product", icon=":material/edit:"):
                 edit_product_dialog_state(True)
 
+        with btn_col3:
+            # Button to open delete product dialog
+            if st.button(label="Delete Product", help="Delete an existing product", icon=":material/delete:"):
+                delete_product_dialog_state(True)
 
 # Show create product dialog if state is active
 if st.session_state.get("create_product_dialog_open", False):
     create_product_dialog()
 if st.session_state.get("edit_product_dialog_open", False):
     edit_product_dialog()
-
+if st.session_state.get("delete_product_dialog_open", False):
+    delete_product_dialog()
 
 # --- Function to load products ---
 @st.cache_data
@@ -75,6 +82,7 @@ columns_to_show = [
 # Display products in a dataframe with proper column configurations
 st.dataframe(
     data[columns_to_show],
+    hide_index=True,
     column_config={
         "ID": st.column_config.TextColumn(),
         "Name": st.column_config.TextColumn(),

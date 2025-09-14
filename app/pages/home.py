@@ -1,8 +1,8 @@
 import streamlit as st
 
 from services.notion_service import get_database_count
-from components.product_components import create_product_dialog, open_product_dialog
-from components.order_components import create_order_dialog, open_order_dialog
+from components.product_components import create_product_dialog, create_product_dialog_state
+from components.order_components import create_order_dialog, create_order_dialog_state
 from components.order_chart import show_orders_chart
 
 
@@ -22,17 +22,17 @@ col1.subheader("Quick Actions")
 if col1.button(label="New Product",
                help="Create a new product",
                icon=":material/add:"):
-    open_product_dialog()
+    create_product_dialog_state(True)
     
-if st.session_state.get("product_dialog_open", False):
+if st.session_state.get("create_product_dialog_open", False):
     create_product_dialog()
 
 if col1.button(label="New Order",
                help="Create a new order",
                icon=":material/add:"):
-    open_order_dialog()
+    create_order_dialog_state(True)
     
-if st.session_state.get("order_dialog_open", False):
+if st.session_state.get("create_order_dialog_open", False):
     create_order_dialog()
 
 

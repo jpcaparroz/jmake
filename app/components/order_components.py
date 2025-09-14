@@ -3,11 +3,11 @@ import pandas as pd
 
 from core.config import get_settings
 from services.notion_service import list_pages
-from models import Order, Product, Customer, Store
+from models import Product, Customer, Store
 
 
-def open_order_dialog():
-    st.session_state["order_dialog_open"] = True
+def create_order_dialog_state(state: bool) -> None:
+    st.session_state["create_order_dialog_open"] = state
 
 
 @st.dialog(

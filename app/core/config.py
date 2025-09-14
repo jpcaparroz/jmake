@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     ST_ORDER_NUMBER_FORMAT: str = "R$ %.2f"
 
     ST_PRODUCT_PRICE_NUMBER_FORMAT: str = "R$ %.2f"
+    ST_PRODUCT_EDIT_DIALOG_PRICE_NUMBER_FORMAT: str = "%0.2f"
     ST_PRODUCT_CREATED_TIME_FORMAT: str = "dddd, MMMM Do YYYY, kk:mm:ss"
     ST_PRODUCT_LAST_EDITED_TIME_FORMAT: str = "dddd, MMMM Do YYYY, kk:mm:ss"
 
