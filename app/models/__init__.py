@@ -5,4 +5,5 @@ from models.order_model import Order
 from models.product_model import Product
 from models.stock_movement_model import StockMovement
 from models.store_model import Store
+from models.stock_model import Stock
 from models.supplier_model import Supplier

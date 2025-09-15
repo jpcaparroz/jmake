@@ -6,7 +6,7 @@ st.logo('./app/image/jmake-logo.svg', size='medium')
 # Navigation pages
 pages = {
     "Home": [st.Page("pages/home.py", title="Home", default=True)],
-    "Products": [st.Page("pages/products_page.py", title="Products")],
+    "Data": [st.Page("pages/products_page.py", title="Products"), st.Page("pages/customer_page.py", title="Customers")],
     "Configurations": [st.Page("pages/settings_page.py", title="Settings")],
 }
 
